@@ -121,10 +121,10 @@ def do_train(cfg, model,
             eta_seconds = meters.time.global_avg * (max_iter - iteration)
             eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
             meters_data = {
-                iter:   iteration,
-                lr:     optimizer.param_groups[0]['lr'],
-                meters: str(meters),
-                eta:    eta_string,
+                'iter':   iteration,
+                'lr':     optimizer.param_groups[0]['lr'],
+                'meters': str(meters),
+                'eta':    eta_string,
             }
             meters_fields = [
                 "iter: {iter:06d}",
