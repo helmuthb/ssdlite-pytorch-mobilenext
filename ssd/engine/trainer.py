@@ -120,20 +120,24 @@ def do_train(cfg, model,
         if iteration % args.log_step == 0:
             eta_seconds = meters.time.global_avg * (max_iter - iteration)
             eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
+            meters_data = {
+                iter:   iteration,
+                lr:     optimizer.param_groups[0]['lr'],
+                meters: str(meters),
+                eta:    eta_string,
+            }
+            meters_fields = [
+                "iter: {iter:06d}",
+                "lr: {lr:.5f}",
+                "{meters}",
+                "eta: {eta}",
+            ]
+            if torch.cuda.is_available():
+                mem = torch.cuda.max_memory_allocated()
+                meters_data['mem'] = round(mem / 1024. / 1024.)
+                meters_fields.append("mem: {mem}M")
             logger.info(
-                meters.delimiter.join([
-                    "iter: {iter:06d}",
-                    "lr: {lr:.5f}",
-                    '{meters}',
-                    "eta: {eta}",
-                    'mem: {mem}M',
-                ]).format(
-                    iter=iteration,
-                    lr=optimizer.param_groups[0]['lr'],
-                    meters=str(meters),
-                    eta=eta_string,
-                    mem=round(torch.cuda.max_memory_allocated() / 1024.0 / 1024.0),
-                )
+                meters.delimiter.join(meters_fields).format(**meters_data)
             )
             if summary_writer:
                 global_step = iteration

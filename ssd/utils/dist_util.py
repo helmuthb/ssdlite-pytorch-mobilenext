@@ -4,6 +4,9 @@ import torch
 import torch.distributed as dist
 
 
+# variable holding the training device
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 def get_world_size():
     if not dist.is_available():
         return 1
@@ -44,7 +47,7 @@ def _encode(encoded_data, data):
     encoded_bytes = pickle.dumps(data)
     # convert this byte string into a byte tensor
     storage = torch.ByteStorage.from_buffer(encoded_bytes)
-    tensor = torch.ByteTensor(storage).to("cuda")
+    tensor = torch.ByteTensor(storage).to(device)
     # encoding: first byte is the size and then rest is the data
     s = tensor.numel()
     assert s <= 255, "Can't encode data greater than 255 bytes"
@@ -68,11 +71,11 @@ def all_gather(data):
     # serialized to a Tensor
     buffer = pickle.dumps(data)
     storage = torch.ByteStorage.from_buffer(buffer)
-    tensor = torch.ByteTensor(storage).to("cuda")
+    tensor = torch.ByteTensor(storage).to(device)
 
     # obtain Tensor size of each rank
-    local_size = torch.LongTensor([tensor.numel()]).to("cuda")
-    size_list = [torch.LongTensor([0]).to("cuda") for _ in range(world_size)]
+    local_size = torch.LongTensor([tensor.numel()]).to(device)
+    size_list = [torch.LongTensor([0]).to(device) for _ in range(world_size)]
     dist.all_gather(size_list, local_size)
     size_list = [int(size.item()) for size in size_list]
     max_size = max(size_list)
@@ -82,9 +85,9 @@ def all_gather(data):
     # gathering tensors of different shapes
     tensor_list = []
     for _ in size_list:
-        tensor_list.append(torch.ByteTensor(size=(max_size,)).to("cuda"))
+        tensor_list.append(torch.ByteTensor(size=(max_size,)).to(device))
     if local_size != max_size:
-        padding = torch.ByteTensor(size=(max_size - local_size,)).to("cuda")
+        padding = torch.ByteTensor(size=(max_size - local_size,)).to(device)
         tensor = torch.cat((tensor, padding), dim=0)
     dist.all_gather(tensor_list, tensor)
 
