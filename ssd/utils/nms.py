@@ -1,16 +1,11 @@
 import sys
 import warnings
 
+from packaging import version
 import torchvision
 import torch
 
-# try:
-#     import torch
-#     import torch_extension
-
-#     _nms = torch_extension.nms
-# except ImportError:
-if torchvision.__version__ >= '0.3.0':
+if version.parse(torchvision.__version__) >= version.parse('0.3.0'):
     _nms = torchvision.ops.nms
 else:
     warnings.warn('No NMS is available. Please upgrade torchvision to 0.3.0+')

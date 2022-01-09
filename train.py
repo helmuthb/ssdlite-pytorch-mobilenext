@@ -30,9 +30,8 @@ def train(cfg, args):
     device = torch.device(cfg.MODEL.DEVICE)
     model.to(device)
     
-    # if args.distributed:
-        # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], output_device=args.local_rank)
-    model = torch.nn.parallel.DistributedDataParallel(model.cuda(), device_ids=[args.local_rank], output_device=args.local_rank)
+    if args.distributed:
+        model = torch.nn.parallel.DistributedDataParallel(model.cuda(), device_ids=[args.local_rank], output_device=args.local_rank)
     
 
     # print(model)

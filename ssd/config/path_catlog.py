@@ -2,8 +2,8 @@ import os
 
 
 class DatasetCatalog:
-    #DATA_DIR = 'datasets'
-    DATA_DIR = '/temp/houqibin/Datasets/VOCdevkit/'
+    DATA_DIR = 'datasets'
+    # DATA_DIR = '/temp/houqibin/Datasets/VOCdevkit/'
     # DATA_DIR = '/temp/houqibin/Datasets/coco/'
     DATASETS = {
         'voc_2007_train': {
